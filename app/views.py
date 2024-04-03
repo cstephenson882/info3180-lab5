@@ -10,8 +10,10 @@ from flask import render_template, request, jsonify, send_file
 import os
 from app.models import Movies, ArticlesSchema
 from app.forms import MovieForm
+from flask_wtf.csrf import CSRFProtect, CSRFError
+from werkzeug.utils import secure_filename
 
-
+# csrf = CSRFProtect(app)
 ###
 # Routing for your application.
 ###
@@ -30,6 +32,7 @@ def movies():
     # return jsonify(ArticlesSchema(many=True).dump(movies))
 
 @app.route('/api/v1/movies', methods=['POST'])
+# @csrf.exempt
 def add_movie():
     ## using WTF
     form = MovieForm()
@@ -37,7 +40,11 @@ def add_movie():
         title = form.title.data
         description = form.description.data
         poster = form.poster.data
-        movie = Movies(title, description, poster)
+        
+        filename = secure_filename(poster.filename)
+        poster.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+        movie = Movies(title=title, description=description, poster=filename)
 
         db.session.add(movie)
         db.session.commit()
@@ -52,7 +59,7 @@ def add_movie():
 
             db.session.add(movie)
             db.session.commit()
-            return jsonify({"message": "Movie Successfully added", "title": movie.title, "poster": movie.poster, "description": movie.description})
+            return jsonify({"message": "Movie Successfully added 2", "title": movie.title, "poster": movie.poster, "description": movie.description})
         
         except Exception as e: # failure on both enpoint and form validation
             
