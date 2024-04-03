@@ -5,9 +5,11 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
 
-from app import app
+from app import app,db
 from flask import render_template, request, jsonify, send_file
 import os
+from app.models import Movies, ArticlesSchema
+from app.forms import MovieForm
 
 
 ###
@@ -18,6 +20,45 @@ import os
 def index():
     return jsonify(message="This is the beginning of our API")
 
+@app.route('/api/v1/see_movies', methods=['GET'])
+def movies():
+    movies = Movies.query.all()
+    result = []
+    for movie in movies:
+        result.append({"message": movie.id, "title": movie.title, "description": movie.description, "poster": movie.poster})
+    return jsonify(result)
+    # return jsonify(ArticlesSchema(many=True).dump(movies))
+
+@app.route('/api/v1/movies', methods=['POST'])
+def add_movie():
+    ## using WTF
+    form = MovieForm()
+    if form.validate():
+        title = form.title.data
+        description = form.description.data
+        poster = form.poster.data
+        movie = Movies(title, description, poster)
+
+        db.session.add(movie)
+        db.session.commit()
+        return jsonify({"message": "Movie Successfully added", "title": movie.title, "poster": movie.poster, "description": movie.description})
+    else:
+        ## using API endpoint
+        try:
+            title = request.json['title']
+            description = request.json['description']
+            poster = request.json['poster']
+            movie = Movies(title=title, description=description,poster = poster)
+
+            db.session.add(movie)
+            db.session.commit()
+            return jsonify({"message": "Movie Successfully added", "title": movie.title, "poster": movie.poster, "description": movie.description})
+        
+        except Exception as e: # failure on both enpoint and form validation
+            
+            return jsonify({'errors': form_errors(form)}), 400
+    return jsonify(form_errors(form))
+    
 
 ###
 # The functions below should be applicable to all Flask apps.
