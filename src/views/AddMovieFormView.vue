@@ -1,6 +1,6 @@
 <template>
     <div>
-      <h1>Add Movie</h1>
+      <h1 class = "container">Add Movie</h1>
       <MovieForm />
     </div>
   </template>

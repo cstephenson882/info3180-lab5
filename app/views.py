@@ -13,6 +13,8 @@ from app.forms import MovieForm
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from werkzeug.utils import secure_filename
 from flask_wtf.csrf import generate_csrf
+from flask import send_from_directory
+
 
 # csrf = CSRFProtect(app)
 ###
@@ -32,9 +34,13 @@ def movies():
     movies = Movies.query.all()
     result = []
     for movie in movies:
-        result.append({"message": movie.id, "title": movie.title, "description": movie.description, "poster": movie.poster})
+        result.append({"id": movie.id, "title": movie.title, "description": movie.description, "poster": movie.poster})
     return jsonify(result)
     # return jsonify(ArticlesSchema(many=True).dump(movies))
+
+@app.route('/api/v1/posters/<filename>')
+def get_poster(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route('/api/v1/movies', methods=['POST'])
 # @csrf.exempt

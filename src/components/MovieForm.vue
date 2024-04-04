@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class = "container">
       <!-- Display success or error message -->
       <div v-if="successMessage" :class="[success ? 'alert alert-success' : 'alert alert-danger']" role="alert">
         <ul v-html="successMessage"></ul>
@@ -89,6 +89,7 @@
             if (data.errors) {
             // Concatenate error messages to the successMessage
             console.log(data.errors);
+            successMessage.value = "";
             for(let i=0; i<data.errors.length; i++) {
                 successMessage.value += `<li>${data.errors[i]}</li>` ;
             }
