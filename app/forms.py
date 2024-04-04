@@ -10,6 +10,4 @@ from wtforms import SubmitField
 class MovieForm(FlaskForm):
     title = StringField("Title", validators=[InputRequired()])
     description = StringField("Description", validators=[InputRequired()])
-    poster = FileField(
-        "Poster", validators=[FileRequired(), FileAllowed(["jpg", "png"], "Images only!")]
-    )
+    poster = FileField("Poster", validators=[FileRequired(), FileAllowed(["jpg", "png"], "Images only!")])

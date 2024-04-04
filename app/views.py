@@ -12,6 +12,7 @@ from app.models import Movies, ArticlesSchema
 from app.forms import MovieForm
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from werkzeug.utils import secure_filename
+from flask_wtf.csrf import generate_csrf
 
 # csrf = CSRFProtect(app)
 ###
@@ -22,7 +23,11 @@ from werkzeug.utils import secure_filename
 def index():
     return jsonify(message="This is the beginning of our API")
 
-@app.route('/api/v1/see_movies', methods=['GET'])
+@app.route('/api/v1/csrf-token', methods=['GET'])
+def get_csrf():
+ return jsonify({'csrf_token': generate_csrf()}) 
+
+@app.route('/api/v1/movies', methods=['GET'])
 def movies():
     movies = Movies.query.all()
     result = []
@@ -41,9 +46,9 @@ def add_movie():
         description = form.description.data
         poster = form.poster.data
         
+        # save poster to uploads folder and getting the filename for database purposes
         filename = secure_filename(poster.filename)
         poster.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-
         movie = Movies(title=title, description=description, poster=filename)
 
         db.session.add(movie)
